@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magnata do Agro: Safra Recorde</title>
+    <title>Império do Agro - Jogo de Gerenciamento</title>
     <style>
         * {
             box-sizing: border-box;
@@ -16,3 +15,417 @@
         body {
             background-color: #e8f5e9;
             color: #2e7d32;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: #2e7d32;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .painel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid #c8e6c9;
+        }
+
+        .status-item {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .status-val {
+            color: #1b5e20;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: #43a047;
+        }
+
+        .btn:disabled {
+            background-color: #b0bec5;
+            cursor: not-allowed;
+        }
+
+        .grid-lavoura {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .slot {
+            background: #d7ccc8;
+            border: 3px solid #8d6e63;
+            border-radius: 8px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .slot:hover {
+            transform: scale(1.03);
+        }
+
+        .slot.plantado {
+            background: #a1887f;
+        }
+
+        .slot.pronto {
+            background: #fff59d;
+            border-color: #fbc02d;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+
+        .loja-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f1f8e9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 5px solid #81c784;
+        }
+
+        .loja-info p {
+            font-size: 0.9rem;
+            color: #558b2f;
+        }
+
+        .btn-compra {
+            background: #2e7d32;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-compra:hover {
+            background: #1b5e20;
+        }
+
+        .btn-compra:disabled {
+            background: #b0bec5;
+        }
+
+        .log {
+            margin-top: 15px;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            height: 100px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Império do Agro</h1>
+        <p>Plante, colha, modernize e alimente o mundo!</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="coluna">
+            <div class="painel">
+                <h2>Fazenda</h2>
+                <hr style="margin: 10px 0; border: 0; border-top: 1px solid #c8e6c9;">
+                <div class="status-item">Caixa: <span class="status-val" id="txt-moedas">R$ 100</span></div>
+                <div class="status-item">Armazém: <span class="status-val" id="txt-graos">0</span> kg de grãos</div>
+                
+                <button class="btn" id="btn-vender" onclick="venderGraos()">Vender Produção (R$ 2/kg)</button>
+                
+                <h3 style="margin-top: 20px; margin-bottom: 10px;">Tecnologia & Upgrades</h3>
+                
+                <div class="loja-item">
+                    <div class="loja-info">
+                        <strong>Comprar Campo (+1 Lote)</strong>
+                        <p>Custo: R$ <span id="custo-lote">150</span></p>
+                    </div>
+                    <button class="btn-compra" id="btn-lote" onclick="comprarLote()">Comprar</button>
+                </div>
+
+                <div class="loja-item">
+                    <div class="loja-info">
+                        <strong>Fertilizante NPK</strong>
+                        <p>Crescimento 25% mais rápido</p>
+                        <p>Custo: R$ <span id="custo-fert">200</span> (Nível <span id="lvl-fert">0</span>)</p>
+                    </div>
+                    <button class="btn-compra" id="btn-fert" onclick="comprarFertilizante()">Melhorar</button>
+                </div>
+
+                <div class="loja-item">
+                    <div class="loja-info">
+                        <strong>Sementes Transgênicas</strong>
+                        <p>+30% de grãos por colheita</p>
+                        <p>Custo: R$ <span id="custo-seme">300</span> (Nível <span id="lvl-seme">0</span>)</p>
+                    </div>
+                    <button class="btn-compra" id="btn-seme" onclick="comprarSementes()">Melhorar</button>
+                </div>
+
+                <h3>Histórico das Atividades</h3>
+                <div class="log" id="log-atividades">
+                    <div>[00:00] Bem-vindo à sua fazenda! Clique em um lote de terra para plantar soja.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="coluna">
+            <div class="painel" style="min-height: 100%;">
+                <h2>Campos de Cultivo</h2>
+                <p style="font-size: 0.9rem; margin-bottom: 10px;">Clique na terra para plantar. Quando ficar amarelo, clique para colher!</p>
+                <div class="grid-lavoura" id="grade-lavoura">
+                    </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ESTADO DO JOGO
+        let jogo = {
+            moedas: 100,
+            graos: 0,
+            precoGrao: 2,
+            niveis: {
+                fertilizante: 0,
+                sementes: 0
+            },
+            custos: {
+                lote: 150,
+                fertilizante: 200,
+                sementes: 300
+            },
+            lotes: [
+                { id: 1, status: 'vazio', tempoRestante: 0, tempoTotal: 5 },
+                { id: 2, status: 'vazio', tempoRestante: 0, tempoTotal: 5 },
+                { id: 3, status: 'vazio', tempoRestante: 0, tempoTotal: 5 }
+            ]
+        };
+
+        // Inicializar o Jogo
+        function iniciar() {
+            renderizarLotes();
+            atualizarInterface();
+            
+            // Loop do jogo (roda a cada 1 segundo)
+            setInterval(() => {
+                atualizarTempoLotes();
+            }, 1000);
+        }
+
+        // Atualiza os textos e botões na tela
+        function atualizarInterface() {
+            document.getElementById('txt-moedas').innerText = `R$ ${jogo.moedas.toFixed(2)}`;
+            document.getElementById('txt-graos').innerText = jogo.graos;
+            
+            // Atualiza custos na loja
+            document.getElementById('custo-lote').innerText = jogo.custos.lote;
+            document.getElementById('custo-fert').innerText = jogo.custos.fertilizante;
+            document.getElementById('custo-seme').innerText = jogo.custos.sementes;
+            
+            // Atualiza níveis
+            document.getElementById('lvl-fert').innerText = jogo.niveis.fertilizante;
+            document.getElementById('lvl-seme').innerText = jogo.niveis.sementes;
+
+            // Validações de botões da loja
+            document.getElementById('btn-lote').disabled = jogo.moedas < jogo.custos.lote;
+            document.getElementById('btn-fert').disabled = jogo.moedas < jogo.custos.fertilizante;
+            document.getElementById('btn-seme').disabled = jogo.moedas < jogo.custos.sementes;
+            document.getElementById('btn-vender').disabled = jogo.graos <= 0;
+        }
+
+        // Adiciona mensagens ao painel de histórico
+        function adicionarLog(mensagem) {
+            const logBox = document.getElementById('log-atividades');
+            const agora = new Date();
+            const tempo = ago = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}:${agora.getSeconds().toString().padStart(2, '0')}`;
+            
+            logBox.innerHTML = `<div>[${tempo}] ${mensagem}</div>` + logBox.innerHTML;
+        }
+
+        // Renderiza visualmente os campos/lotes
+        function renderizarLotes() {
+            const grade = document.getElementById('grade-lavoura');
+            grade.innerHTML = '';
+
+            jogo.lotes.forEach((lote, index) => {
+                const div = document.createElement('div');
+                div.className = `slot ${lote.status}`;
+                div.onclick = () => interagirLote(index);
+
+                if (lote.status === 'vazio') {
+                    div.innerHTML = `🌱<br><strong>Vazio</strong><br><span style="font-size:0.8rem; color:#6d4c41;">Clique para Plantar</span>`;
+                } else if (lote.status === 'plantado') {
+                    div.innerHTML = `⏳<br><strong>Crescendo</strong><br>${lote.tempoRestante}s`;
+                } else if (lote.status === 'pronto') {
+                    div.innerHTML = `🚜<br><strong>Pronto!</strong><br><span style="font-size:0.8rem; color:#e65100; font-weight:bold;">Clique p/ Colher</span>`;
+                }
+
+                grade.appendChild(div);
+            });
+        }
+
+        // Ação de clicar em um lote (Plantar ou Colher)
+        function interagirLote(index) {
+            let lote = jogo.lotes[index];
+
+            if (lote.status === 'vazio') {
+                // Calcular tempo baseado no upgrade de fertilizante (reduz tempo em 25% por nível)
+                let reducaoTempo = 1 - (jogo.niveis.fertilizante * 0.15);
+                if (reducaoTempo < 0.2) reducaoTempo = 0.2; // Limite máximo de velocidade
+
+                lote.status = 'plantado';
+                lote.tempoTotal = Math.round(6 * reducaoTempo);
+                lote.tempoRestante = lote.tempoTotal;
+                
+                adicionarLog(`Soja semeada no lote ${index + 1}.`);
+                renderizarLotes();
+            } 
+            else if (lote.status === 'pronto') {
+                // Calcular produção baseada nas sementes transgênicas (+30% por nível)
+                let bonusProducao = 1 + (jogo.niveis.sementes * 0.3);
+                let colheitaPadrao = 50;
+                let totalColhido = Math.round(colheitaPadrao * bonusProducao);
+
+                jogo.graos += totalColhido;
+                lote.status = 'vazio';
+                
+                adicionarLog(`Colheita realizada no lote ${index + 1}: +${totalColhido}kg de grãos.`);
+                atualizarInterface();
+                renderizarLotes();
+            }
+        }
+
+        // Contador de tempo dos cultivos
+        function atualizarTempoLotes() {
+            let mudouAlgo = false;
+            jogo.lotes.forEach(lote => {
+                if (lote.status === 'plantado') {
+                    lote.tempoRestante--;
+                    if (lote.tempoRestante <= 0) {
+                        lote.status = 'pronto';
+                    }
+                    mudouAlgo = true;
+                }
+            });
+
+            if (mudouAlgo) {
+                renderizarLotes();
+            }
+        }
+
+        // Vender os grãos armazenados
+        function venderGraos() {
+            if (jogo.graos > 0) {
+                let ganho = jogo.graos * jogo.precoGrao;
+                jogo.moedas += ganho;
+                adicionarLog(`Safra vendida! Recebeu R$ ${ganho.toFixed(2)} por ${jogo.graos}kg de grãos.`);
+                jogo.graos = 0;
+                atualizarInterface();
+            }
+        }
+
+        // UPGRADES DA LOJA
+
+        function comprarLote() {
+            if (jogo.moedas >= jogo.custos.lote) {
+                jogo.moedas -= jogo.custos.lote;
+                
+                let novoId = jogo.lotes.length + 1;
+                jogo.lotes.push({ id: novoId, status: 'vazio', tempoRestante: 0, tempoTotal: 5 });
+                
+                jogo.custos.lote = Math.round(jogo.custos.lote * 1.6); // aumenta o custo do próximo lote
+                adicionarLog(`Você expandiu suas terras! Lote ${novoId} adquirido.`);
+                
+                atualizarInterface();
+                renderizarLotes();
+            }
+        }
+
+        function comprarFertilizante() {
+            if (jogo.moedas >= jogo.custos.fertilizante) {
+                jogo.moedas -= jogo.custos.fertilizante;
+                jogo.niveis.fertilizante++;
+                jogo.custos.fertilizante = Math.round(jogo.custos.fertilizante * 1.8);
+                
+                adicionarLog(`Tecnologia de Fertilizante NPK melhorada para Nível ${jogo.niveis.fertilizante}. Suas plantas crescerão mais rápido.`);
+                atualizarInterface();
+            }
+        }
+
+        function comprarSementes() {
+            if (jogo.moedas >= jogo.custos.sementes) {
+                jogo.moedas -= jogo.custos.sementes;
+                jogo.niveis.sementes++;
+                jogo.custos.sementes = Math.round(jogo.custos.sementes * 1.8);
+                
+                adicionarLog(`Biotecnologia aplicada! Sementes Transgênicas Nível ${jogo.niveis.sementes} desbloqueadas. Produtividade aumentada.`);
+                atualizarInterface();
+            }
+        }
+
+        // Inicializa o script
+        window.onload = iniciar;
+    </script>
+</body>
+</html>
