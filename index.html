@@ -3,424 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Império do Agro - Simulator</title>
+    <title>Agro Forte: O Simulador Realista</title>
     <style>
         :root {
             --primary: #2e7d32;
-            --primary-light: #4caf50;
-            --dark: #1b5e20;
-            --background: #f1f8e9;
-            --surface: #ffffff;
-            --text: #2c3e50;
-            --text-light: #7f8c8d;
-            --accent: #e67e22;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --primary-dark: #1b5e20;
+            --secondary: #8d6e63;
+            --light: #f1f8e9;
+            --dark: #212121;
         }
 
         body {
-            background-color: var(--background);
-            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e8f5e9;
+            color: var(--dark);
+            margin: 0;
             padding: 20px;
         }
 
-        header {
-            background: linear-gradient(135deg, var(--dark), var(--primary));
-            color: white;
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
             padding: 20px;
             border-radius: 12px;
-            text-align: center;
-            margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 5px;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .card {
-            background: var(--surface);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-left: 5px solid var(--primary);
-            transition: transform 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-3px);
-        }
-
-        .card h3 {
-            font-size: 0.9rem;
-            color: var(--text-light);
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-
-        .card .value {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--text);
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .panel {
-            background: var(--surface);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-
-        .panel h2 {
-            margin-bottom: 20px;
-            color: var(--dark);
-            border-bottom: 2px solid #eaedd0;
+        header {
+            text-align: center;
+            border-bottom: 3px solid var(--primary);
             padding-bottom: 10px;
+            margin-bottom: 20px;
         }
 
-        .market-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
+        h1 {
+            color: var(--primary-dark);
+            margin: 0;
         }
 
-        .btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
-
-        .btn:hover {
-            background-color: var(--primary-light);
-        }
-
-        .btn:disabled {
-            background-color: #bdc3c7;
-            cursor: not-allowed;
-        }
-
-        .btn-sell { background-color: var(--accent); }
-        .btn-sell:hover { background-color: #d35400; }
-
-        .upgrade-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .painel-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            background: var(--light);
             padding: 15px;
-            background: #f9f9f9;
-            margin-bottom: 10px;
             border-radius: 8px;
-            border: 1px solid #eee;
+            margin-bottom: 20px;
+            border: 1px solid #c8e6c9;
         }
 
-        .upgrade-info p {
-            font-size: 0.85rem;
-            color: var(--text-light);
-        }
-
-        .status-badge {
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
+        .status-card {
+            text-align: center;
             font-weight: bold;
         }
-        .up { background: #e8f5e9; color: #2e7d32; }
-        .down { background: #ffebee; color: #c62828; }
-    </style>
-</head>
-<body>
 
-    <header>
-        <h1>Império do Agro</h1>
-        <p>Gerencie sua fazenda, domine o mercado e construa um império corporativo.</p>
-    </header>
-
-    <div class="dashboard">
-        <div class="card" style="border-left-color: #2ecc71;">
-            <h3>Caixa Disponível</h3>
-            <div class="value" id="balance">R$ 10.000</div>
-        </div>
-        <div class="card" style="border-left-color: #3498db;">
-            <h3>Estoque de Grãos</h3>
-            <div class="value" id="stock">0 / 1.000 kg</div>
-        </div>
-        <div class="card" style="border-left-color: #f1c40f;">
-            <h3>Produção Atual</h3>
-            <div class="value" id="production-rate">0 kg/s</div>
-        </div>
-        <div class="card" style="border-left-color: #9b59b6;">
-            <h3>Terras Totais</h3>
-            <div class="value" id="lands">10 Hectares</div>
-        </div>
-    </div>
-
-    <div class="main-content">
-        <div>
-            <div class="panel">
-                <h2>Mercado de Commodities (Preço por kg)</h2>
-                
-                <div class="market-row">
-                    <div>
-                        <strong>Soja</strong> 
-                        <span id="soy-trend" class="status-badge up">▲ ESTÁVEL</span>
-                    </div>
-                    <div><span class="value" id="soy-price">R$ 5.50</span></div>
-                    <button class="btn btn-sell" onclick="sellGrain('soy')">Vender Tudo</button>
-                </div>
-
-                <div class="market-row">
-                    <div>
-                        <strong>Milho</strong> 
-                        <span id="corn-trend" class="status-badge up">▲ ESTÁVEL</span>
-                    </div>
-                    <div><span class="value" id="corn-price">R$ 3.20</span></div>
-                    <button class="btn btn-sell" onclick="sellGrain('corn')">Vender Tudo</button>
-                </div>
-                
-                <div style="margin-top: 20px; text-align: center;">
-                    <button class="btn" style="width: 100%; padding: 15px;" onclick="manualHarvest()">Colher Manualmente (+10 kg)</button>
-                </div>
-            </div>
-
-            <div class="panel">
-                <h2>Infraestrutura e Expansão</h2>
-                
-                <div class="upgrade-item">
-                    <div class="upgrade-info">
-                        <strong>Comprar Hectare de Terra</strong>
-                        <p>Aumenta o espaço para cultivo e eficiência de maquinários.</p>
-                    </div>
-                    <button class="btn" id="btn-land" onclick="buyLand()">Comprar por R$ 5.000</button>
-                </div>
-
-                <div class="upgrade-item">
-                    <div class="upgrade-info">
-                        <strong>Expandir Silo de Armazenamento</strong>
-                        <p>Aumenta a capacidade máxima de estoque em +2.500 kg.</p>
-                    </div>
-                    <button class="btn" id="btn-silo" onclick="buySilo()">Expandir por R$ 3.500</button>
-                </div>
-            </div>
-        </div>
-
-        <div>
-            <div class="panel">
-                <h2>Tecnologia e Automação</h2>
-                
-                <div class="upgrade-item">
-                    <div class="upgrade-info">
-                        <strong>Trator Leve (<span id="count-tractor">0</span>)</strong>
-                        <p>+5 kg de grãos por segundo.</p>
-                    </div>
-                    <button class="btn" id="btn-tractor" onclick="buyAutomator('tractor')">R$ 1.200</button>
-                </div>
-
-                <div class="upgrade-item">
-                    <div class="upgrade-info">
-                        <strong>Colheitadeira (<span id="count-harvester">0</span>)</strong>
-                        <p>+25 kg de grãos por segundo.</p>
-                    </div>
-                    <button class="btn" id="btn-harvester" onclick="buyAutomator('harvester')">R$ 6.000</button>
-                </div>
-            </div>
-            
-            <div style="text-align: center;">
-                <button class="btn" style="background-color: #95a5a6;" onclick="resetGame()">Resetar Progresso</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Estado do Jogo
-        let game = {
-            balance: 10000,
-            stock: 0,
-            maxStock: 1000,
-            lands: 10,
-            productionRate: 0,
-            prices: { soy: 5.50, corn: 3.20 },
-            automators: {
-                tractor: { count: 0, cost: 1200, prod: 5 },
-                harvester: { count: 0, cost: 6000, prod: 25 }
-            },
-            costs: {
-                land: 5000,
-                silo: 3500
-            }
-        };
-
-        // Carregar jogo salvo
-        if (localStorage.getItem('imperioDoAgroSave')) {
-            game = JSON.parse(localStorage.getItem('imperioDoAgroSave'));
-        }
-
-        function formatCurrency(val) {
-            return 'R$ ' + val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        function updateUI() {
-            document.getElementById('balance').innerText = formatCurrency(game.balance);
-            document.getElementById('stock').innerText = `${Math.floor(game.stock).toLocaleString('pt-BR')} / ${game.maxStock.toLocaleString('pt-BR')} kg`;
-            document.getElementById('production-rate').innerText = `${game.productionRate} kg/s`;
-            document.getElementById('lands').innerText = `${game.lands} Hectares`;
-            
-            document.getElementById('soy-price').innerText = formatCurrency(game.prices.soy);
-            document.getElementById('corn-price').innerText = formatCurrency(game.prices.corn);
-
-            document.getElementById('count-tractor').innerText = game.automators.tractor.count;
-            document.getElementById('btn-tractor').innerText = formatCurrency(game.automators.tractor.cost);
-            
-            document.getElementById('count-harvester').innerText = game.automators.harvester.count;
-            document.getElementById('btn-harvester').innerText = formatCurrency(game.automators.harvester.cost);
-
-            document.getElementById('btn-land').innerText = `Comprar por ` + formatCurrency(game.costs.land);
-            document.getElementById('btn-silo').innerText = `Expandir por ` + formatCurrency(game.costs.silo);
-
-            // Validação de botões de compra
-            document.getElementById('btn-tractor').disabled = game.balance < game.automators.tractor.cost;
-            document.getElementById('btn-harvester').disabled = game.balance < game.automators.harvester.cost;
-            document.getElementById('btn-land').disabled = game.balance < game.costs.land;
-            document.getElementById('btn-silo').disabled = game.balance < game.costs.silo;
-        }
-
-        function manualHarvest() {
-            if (game.stock < game.maxStock) {
-                game.stock = Math.min(game.maxStock, game.stock + 10);
-                updateUI();
-            }
-        }
-
-        function buyAutomator(type) {
-            let aut = game.automators[type];
-            if (game.balance >= aut.cost) {
-                game.balance -= aut.cost;
-                aut.count++;
-                aut.cost = Math.round(aut.cost * 1.15); // Aumento de preço progressivo
-                calculateProduction();
-                updateUI();
-                saveGame();
-            }
-        }
-
-        function buyLand() {
-            if (game.balance >= game.costs.land) {
-                game.balance -= game.costs.land;
-                game.lands += 1;
-                game.costs.land = Math.round(game.costs.land * 1.2);
-                calculateProduction();
-                updateUI();
-                saveGame();
-            }
-        }
-
-        function buySilo() {
-            if (game.balance >= game.costs.silo) {
-                game.balance -= game.costs.silo;
-                game.maxStock += 2500;
-                game.costs.silo = Math.round(game.costs.silo * 1.25);
-                updateUI();
-                saveGame();
-            }
-        }
-
-        function calculateProduction() {
-            // A produção base dos tratores/colheitadeiras escala ligeiramente com o número de hectares
-            let landMultiplier = 1 + (game.lands - 10) * 0.02; 
-            let total = (game.automators.tractor.count * game.automators.tractor.prod) + 
-                        (game.automators.harvester.count * game.automators.harvester.prod);
-            game.productionRate = Math.round(total * landMultiplier);
-        }
-
-        function sellGrain(type) {
-            if (game.stock > 0) {
-                let price = game.prices[type];
-                let revenue = game.stock * price;
-                game.balance += revenue;
-                game.stock = 0;
-                updateUI();
-                saveGame();
-            }
-        }
-
-        // Loop de mercado (Flutuação de Preços)
-        setInterval(() => {
-            ['soy', 'corn'].forEach(type => {
-                let basePrice = type === 'soy' ? 5.50 : 3.20;
-                let change = (Math.random() - 0.5) * 0.8; // variação
-                let newPrice = Math.max(0.5, game.prices[type] + change);
-                
-                let badge = document.getElementById(`${type}-trend`);
-                if (newPrice > game.prices[type]) {
-                    badge.innerText = "▲ EM ALTA";
-                    badge.className = "status-badge up";
-                } else {
-                    badge.innerText = "▼ EM QUEDA";
-                    badge.className = "status-badge down";
-                }
-                
-                game.prices[type] = parseFloat(newPrice.toFixed(2));
-            });
-            updateUI();
-        }, 5000);
-
-        // Loop Principal do Jogo (Geração por segundo)
-        setInterval(() => {
-            if (game.productionRate > 0 && game.stock < game.maxStock) {
-                game.stock = Math.min(game.maxStock, game.stock + (game.productionRate / 10));
-                updateUI();
-            }
-        }, 100);
-
-        // Auto-save a cada 15 segundos
-        setInterval(saveGame, 15000);
-
-        function saveGame() {
-            localStorage.setItem('imperioDoAgroSave', JSON.stringify(game));
-        }
-
-        function resetGame() {
-            if (confirm("Tem certeza que deseja resetar sua fazenda? Todo o progresso será perdido.")) {
-                localStorage.removeItem('imperioDoAgroSave');
-                location.reload();
-            }
-        }
-
-        // Inicialização
-        calculateProduction();
-        updateUI();
-    </script>
-</body>
-</html>
+        .status-card span {
+            display: block;
